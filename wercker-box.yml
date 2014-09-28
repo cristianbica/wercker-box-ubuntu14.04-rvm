@@ -1,0 +1,57 @@
+name: ubuntu14.04-rvm
+version: 0.0.1
+type: main
+platform: ubuntu@12.04
+description: Ubuntu 14.04 RVM
+keywords:
+  - ubuntu
+  - ubuntults
+  - ubuntu14.04
+  - rvm
+  - ruby
+packages:
+  - ruby@1.9.3
+  - ruby@2.0.0
+  - ruby@2.1
+script: |
+  #upgrade to 14.04
+  sudo apt-get update -y
+  sudo apt-get install -y update-manager-core
+  sudo do-release-upgrade -f DistUpgradeViewNonInteractive -m server -d
+  sudo apt-get install -y aptitude
+  sudo aptitude update
+  sudo aptitude safe-upgrade
+  # common packages
+  sudo aptitude install -y autoconf bash-completion bind9-host bison build-essential checkinstall curl daemontools dnsutils ed git htop imagemagick iputils-tracepath jpegoptim libcurl4-openssl-dev libevent-dev libglib2.0-dev libjpeg-dev libjpeg62 libmagickcore-dev libmagickwand-dev libmcrypt-dev libmysqlclient-dev libpng12-0 libpng12-dev libpq-dev libqtwebkit-dev libreadline-dev libsqlite3-dev libssl-dev libssl0.9.8 libv8-dev libxml2-dev libxslt-dev lsof mercurial netcat-openbsd ngrep ruby socat software-properties-common sqlite3 telnet tmux ufw unattended-upgrades vim-nox wget zlib1g-dev
+
+  # SSH known hosts
+  mkdir -p $HOME/.ssh
+  known_hosts_path="$HOME/.ssh/known_hosts"
+  touch $known_hosts_path
+  chmod 600 $known_hosts_path
+  echo "github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==" >> $known_hosts_path
+  echo "bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==" >> $known_hosts_path
+
+  #RVM
+  sudo apt-get remove ruby1.9.1
+  curl -sSL https://get.rvm.io | bash -s stable
+  echo "bundler -v~>1.5.1" > $HOME/.rvm/gemsets/global.gems
+  source $HOME/.rvm/scripts/rvm
+  rvm install 1.9.3
+  rvm install 2.0.0
+  rvm install 2.1
+  rvm --default use 2.0.0
+
+  # set some default for ruby / rails
+  echo "gem: --no-rdoc --no-ri" >> $HOME/.gemrc
+  echo "RAILS_ENV=test" | sudo tee -a /etc/environment
+  echo "RACK_ENV=test" | sudo tee -a /etc/environment
+
+  # fix permissions for home temp folder
+  mkdir -p $HOME/tmp
+  sudo chown ubuntu:ubuntu $HOME/tmp
+  chmod 755 $HOME/tmp
+
+  # chef
+  curl -L https://www.opscode.com/chef/install.sh | sudo bash
+
