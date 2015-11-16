@@ -1,5 +1,5 @@
 name: ubuntu14.04-rvm
-version: 0.0.1
+version: 0.0.2
 type: main
 platform: ubuntu@12.04
 description: Ubuntu 14.04 RVM
@@ -13,6 +13,7 @@ packages:
   - ruby@1.9.3
   - ruby@2.0.0
   - ruby@2.1
+  - ruby@2.2
 script: |
   #upgrade to 14.04
   sudo apt-get update -y
